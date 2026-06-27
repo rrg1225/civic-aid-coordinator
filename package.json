@@ -12,7 +12,9 @@
     "test": "node --test test/*.test.js",
     "build": "vite build",
     "start": "node server/index.js",
-    "health": "node scripts/project-health.js"
+    "health": "node scripts/project-health.js",
+    "ops:check": "node scripts/ops-check.js",
+    "ci:local": "npm run health && npm run ops:check && npm test && npm run build"
   },
   "keywords": [
     "civic-tech",
@@ -31,5 +33,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "vite": "^6.4.2"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
