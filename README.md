@@ -20,7 +20,7 @@ During heat waves, storms, fires, public-health disruptions, or everyday hardshi
 - Role-based actions: `viewer`, `intake`, `dispatcher`, `admin`.
 - Redacted case-list responses to avoid exposing phone numbers or emails.
 - Audit trail for creation, assignment, and resolution.
-- Runtime metrics, security headers, API tests, CI, and architecture docs.
+- Runtime metrics, operational scorecard, security headers, API tests, CI, and architecture docs.
 - Optional deployment path for MySQL, Redis, and AI provider integration through environment variables.
 
 ## Quick Start
@@ -46,6 +46,8 @@ npm run start
 | --- | --- | --- |
 | `GET` | `/api/health` | Service health |
 | `GET` | `/api/metrics` | Case and capacity metrics |
+| `GET` | `/api/metrics/runtime` | Runtime request and status metrics |
+| `GET` | `/api/metrics/scorecard` | Operational readiness score and checks |
 | `GET` | `/api/cases` | Redacted, scored case queue |
 | `POST` | `/api/cases` | Create protected intake, requires `intake`, `dispatcher`, or `admin` |
 | `POST` | `/api/cases/:id/assignments` | Assign a resource, requires `dispatcher` or `admin` |
