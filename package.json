@@ -26,6 +26,8 @@
     "resource-matching"
   ],
   "dependencies": {
+    "@emnapi/core": "1.11.1",
+    "@emnapi/runtime": "1.11.1",
     "@vitejs/plugin-react": "^6.0.3",
     "concurrently": "^10.0.3",
     "cors": "^2.8.5",
