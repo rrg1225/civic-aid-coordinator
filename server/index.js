@@ -3,7 +3,7 @@ import cors from "cors";
 import { fileURLToPath } from "node:url";
 import { dirname, join, resolve } from "node:path";
 import { createStore } from "./store.js";
-import { createRuntimeState, installRuntimeControls, runtimeMetrics } from "./runtime.js";
+import { createRuntimeState, installRuntimeControls, operationalScorecard, runtimeMetrics } from "./runtime.js";
 import { asyncRoute, errorHandler, notFound, requireObjectBody, requireRole } from "./http.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -23,6 +23,7 @@ export async function createApp(options = {}) {
     res.json({ ok: true, service: "civic-aid-coordinator", storage: process.env.MYSQL_URL ? "mysql-ready" : "local-json" });
   });
   app.get("/api/metrics/runtime", (_req, res) => res.json(runtimeMetrics(runtime)));
+  app.get("/api/metrics/scorecard", (_req, res) => res.json(operationalScorecard(runtime)));
   app.get("/api/metrics", asyncRoute(async (_req, res) => res.json(await store.metrics())));
   app.get("/api/cases", asyncRoute(async (req, res) => res.json(await store.listCases(req.query))));
   app.get("/api/resources", asyncRoute(async (_req, res) => res.json(await store.resources())));

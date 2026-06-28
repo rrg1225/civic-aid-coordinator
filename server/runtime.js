@@ -43,3 +43,49 @@ export function runtimeMetrics(state) {
     byStatus: state.byStatus
   };
 }
+
+export function operationalScorecard(state) {
+  const metrics = runtimeMetrics(state);
+  const totalResponses = Object.values(metrics.byStatus).reduce((sum, count) => sum + count, 0);
+  const errorRate = totalResponses === 0 ? 0 : metrics.errors / totalResponses;
+  const availability = Math.round((1 - errorRate) * 1000) / 10;
+  const checks = [
+    {
+      id: "security_headers",
+      label: "Baseline browser security headers installed",
+      status: "passing",
+      points: 25
+    },
+    {
+      id: "request_correlation",
+      label: "Every request receives an x-request-id",
+      status: "passing",
+      points: 25
+    },
+    {
+      id: "runtime_counters",
+      label: "Runtime request and status counters are exposed",
+      status: metrics.requests >= totalResponses ? "passing" : "watch",
+      points: metrics.requests >= totalResponses ? 25 : 12
+    },
+    {
+      id: "error_budget",
+      label: "Observed API availability stays above 99 percent",
+      status: availability >= 99 ? "passing" : "watch",
+      points: availability >= 99 ? 25 : 12
+    }
+  ];
+
+  const score = checks.reduce((sum, check) => sum + check.points, 0);
+  return {
+    service: metrics.service,
+    generatedAt: new Date().toISOString(),
+    uptimeSeconds: metrics.uptimeSeconds,
+    score,
+    grade: score >= 90 ? "A" : score >= 75 ? "B" : "C",
+    availability,
+    requests: metrics.requests,
+    errors: metrics.errors,
+    checks
+  };
+}

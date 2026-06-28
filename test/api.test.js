@@ -25,6 +25,11 @@ test("lists redacted, scored aid cases with security headers", async (t) => {
   const cases = await response.json();
   assert.ok(cases[0].triageScore >= cases[1].triageScore);
   assert.match(cases.find((item) => item.id === "CASE-1001").notes, /redacted/);
+
+  const metrics = await fetch(`${baseUrl}/api/metrics`);
+  const metricBody = await metrics.json();
+  assert.ok(metricBody.capacityUtilization >= 0);
+  assert.ok("unassignedCritical" in metricBody);
 });
 
 test("enforces roles and assigns resources", async (t) => {
@@ -63,4 +68,17 @@ test("enforces roles and assigns resources", async (t) => {
   });
   assert.equal(assigned.status, 200);
   assert.equal((await assigned.json()).status, "Assigned");
+});
+
+test("exposes an operational scorecard", async (t) => {
+  const tempDir = await mkdtemp(join(tmpdir(), "civic-aid-"));
+  t.after(() => rm(tempDir, { recursive: true, force: true }));
+  const { server, baseUrl } = await startServer(join(tempDir, "data.json"));
+  t.after(() => server.close());
+
+  const response = await fetch(`${baseUrl}/api/metrics/scorecard`);
+  assert.equal(response.status, 200);
+  const body = await response.json();
+  assert.equal(body.grade, "A");
+  assert.ok(body.checks.some((check) => check.id === "security_headers"));
 });

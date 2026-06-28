@@ -135,11 +135,18 @@ export async function createStore(filePath) {
     async metrics() {
       const data = await read();
       const enriched = data.cases.map((item) => enrichCase(item, data.resources));
+      const activeCases = enriched.filter((item) => item.status !== "Resolved");
+      const unavailableNeeds = activeCases.filter((item) => !data.resources.some((resource) => resource.type === item.needType && resource.available > 0));
+      const totalCapacity = data.resources.reduce((sum, item) => sum + item.capacity, 0);
+      const availableResources = data.resources.reduce((sum, item) => sum + item.available, 0);
       return {
         totalCases: enriched.length,
         criticalCases: enriched.filter((item) => item.priorityBand === "Critical").length,
-        openCases: enriched.filter((item) => item.status !== "Resolved").length,
-        availableResources: data.resources.reduce((sum, item) => sum + item.available, 0),
+        openCases: activeCases.length,
+        unassignedCritical: activeCases.filter((item) => item.priorityBand === "Critical" && !item.assignedTeam).length,
+        availableResources,
+        capacityUtilization: totalCapacity ? Math.round(((totalCapacity - availableResources) / totalCapacity) * 100) : 0,
+        coverageGaps: groupCount(unavailableNeeds, "needType"),
         byNeedType: groupCount(enriched, "needType"),
         byStatus: groupCount(enriched, "status"),
         topPriority: enriched.slice().sort((a, b) => b.triageScore - a.triageScore).slice(0, 5)

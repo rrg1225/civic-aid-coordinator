@@ -121,8 +121,9 @@ export default function App() {
       <section className="metric-grid">
         <Metric label="Open cases" value={metrics?.openCases ?? "-"} />
         <Metric label="Critical" value={metrics?.criticalCases ?? "-"} />
+        <Metric label="Unassigned critical" value={metrics?.unassignedCritical ?? "-"} />
+        <Metric label="Capacity used" value={metrics ? `${metrics.capacityUtilization}%` : "-"} />
         <Metric label="Available resources" value={metrics?.availableResources ?? "-"} />
-        <Metric label="Total cases" value={metrics?.totalCases ?? "-"} />
       </section>
 
       <section className="workspace">
@@ -200,6 +201,17 @@ export default function App() {
               <div key={resource.id}>
                 <strong>{resource.name}</strong>
                 <span>{resource.type} · {resource.neighborhood} · {resource.available}/{resource.capacity}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="panel">
+          <h2>Coverage gaps</h2>
+          <div className="resource-list">
+            {Object.entries(metrics?.coverageGaps || {}).map(([need, count]) => (
+              <div key={need}>
+                <strong>{need}</strong>
+                <span>{count} active cases without available capacity</span>
               </div>
             ))}
           </div>
